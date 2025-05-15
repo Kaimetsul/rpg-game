@@ -1,8 +1,8 @@
 # Jenkins Polling Test - This comment was added to test automatic builds
 import pygame
 import sys
-from game import CHARACTER_CLASSES, Battle
-from ui import UI
+from src.game import CHARACTER_CLASSES, Battle
+from src.ui import UI
 
 # Initialize Pygame
 pygame.init()
@@ -101,9 +101,9 @@ def main():
             # Draw character boxes
             for char_class in CHARACTER_CLASSES:
                 is_hovered = char_class.rect.collidepoint(mouse_pos)
-                draw_character_box(char_class, is_hovered)
+                ui.draw_character_box(char_class, is_hovered)
         else:
-            draw_battle_screen(selected_class, battle.enemy_hp)
+            ui.draw_battle_screen(selected_class, battle.enemy_hp)
         
         pygame.display.flip()
         clock.tick(60)
