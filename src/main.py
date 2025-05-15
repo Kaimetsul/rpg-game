@@ -1,6 +1,8 @@
 # Jenkins Polling Test - This comment was added to test automatic builds
 import pygame
 import sys
+from game import CHARACTER_CLASSES, Battle
+from ui import UI
 
 # Initialize Pygame
 pygame.init()
@@ -10,61 +12,58 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GRAY = (50, 50, 50)
-HOVER_COLOR = (30, 30, 30)
 
-# Set up the display
-screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("RPG Character Selection")
-#BREAD squared
+# Set up the UI
+ui = UI(WINDOW_WIDTH, WINDOW_HEIGHT)
+
 # Character classes
-CHARACTER_CLASSES = [
-    {
-        "name": "Hunter",
-        "description": "Expert in ranged combat and tracking",
-        "rect": pygame.Rect(100, 150, 250, 300)
-    },
-    {
-        "name": "Mage",
-        "description": "Master of arcane arts and spells",
-        "rect": pygame.Rect(450, 150, 250, 300)
-    },
-    {
-        "name": "Beast Tamer",
-        "description": "Controls and commands wild creatures",
-        "rect": pygame.Rect(100, 470, 250, 300)
-    },
-    {
-        "name": "Tank",
-        "description": "Heavy armor and defensive specialist",
-        "rect": pygame.Rect(450, 470, 250, 300)
-    }
-]
+for char_class in CHARACTER_CLASSES:
+    char_class.rect = pygame.Rect(300, 150 + CHARACTER_CLASSES.index(char_class) * 70, 200, 50)
 
 # Font setup
 title_font = pygame.font.Font(None, 48)
 class_font = pygame.font.Font(None, 36)
-desc_font = pygame.font.Font(None, 24)
+attack_font = pygame.font.Font(None, 24)
 
 def draw_character_box(char_class, is_hovered=False):
-    # Draw the box
-    color = HOVER_COLOR if is_hovered else BLACK
-    pygame.draw.rect(screen, color, char_class["rect"], border_radius=15)
-    pygame.draw.rect(screen, GRAY, char_class["rect"], 2, border_radius=15)
+    # Draw the octagon
+    rect = char_class.rect
+    points = [
+        (rect.left, rect.top + 10),
+        (rect.left + 10, rect.top),
+        (rect.right - 10, rect.top),
+        (rect.right, rect.top + 10),
+        (rect.right, rect.bottom - 10),
+        (rect.right - 10, rect.bottom),
+        (rect.left + 10, rect.bottom),
+        (rect.left, rect.bottom - 10)
+    ]
+    pygame.draw.polygon(ui.screen, WHITE, points)
+    pygame.draw.polygon(ui.screen, BLACK, points, 2)
     
     # Draw the text
-    name_text = class_font.render(char_class["name"], True, WHITE)
-    desc_text = desc_font.render(char_class["description"], True, WHITE)
+    name_text = class_font.render(char_class.name, True, BLACK)
+    name_rect = name_text.get_rect(center=(rect.centerx, rect.centery))
+    ui.screen.blit(name_text, name_rect)
+
+def draw_battle_screen(selected_class, enemy_hp):
+    ui.screen.fill(BLACK)
     
-    # Center the text
-    name_rect = name_text.get_rect(center=(char_class["rect"].centerx, char_class["rect"].top + 50))
-    desc_rect = desc_text.get_rect(center=(char_class["rect"].centerx, char_class["rect"].top + 100))
+    # Draw enemy HP
+    enemy_text = class_font.render(f"Enemy HP: {enemy_hp}", True, WHITE)
+    ui.screen.blit(enemy_text, (50, 50))
     
-    screen.blit(name_text, name_rect)
-    screen.blit(desc_text, desc_rect)
+    # Draw attacks
+    for i, attack in enumerate(selected_class.attacks):
+        attack_text = attack_font.render(f"{attack['name']} - {attack['damage']} damage", True, WHITE)
+        ui.screen.blit(attack_text, (50, 150 + i * 50))
+    
+    pygame.display.flip()
 
 def main():
     clock = pygame.time.Clock()
+    selected_class = None
+    battle = None
     
     while True:
         mouse_pos = pygame.mouse.get_pos()
@@ -74,24 +73,37 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Check if any character class was clicked
-                for char_class in CHARACTER_CLASSES:
-                    if char_class["rect"].collidepoint(mouse_pos):
-                        print(f"Selected: {char_class['name']}")
-                        # TODO: Handle character selection
+                if selected_class is None:
+                    # Check if any character class was clicked
+                    for char_class in CHARACTER_CLASSES:
+                        if char_class.rect.collidepoint(mouse_pos):
+                            selected_class = char_class
+                            battle = Battle(char_class)
+                            print(f"Selected: {char_class.name}")
+                else:
+                    # Handle attack selection
+                    for i, attack in enumerate(selected_class.attacks):
+                        attack_rect = pygame.Rect(50, 150 + i * 50, 200, 30)
+                        if attack_rect.collidepoint(mouse_pos):
+                            attack_name, damage, enemy_hp = battle.attack(i)
+                            print(f"Used {attack_name} for {damage} damage. Enemy HP: {enemy_hp}")
+                            if battle.is_enemy_defeated():
+                                print("Enemy defeated!")
+                                # TODO: Handle enemy defeat
         
-        # Clear the screen
-        screen.fill((26, 26, 26))  # Dark gray background
-        
-        # Draw title
-        title_text = title_font.render("Choose Your Character", True, WHITE)
-        title_rect = title_text.get_rect(center=(WINDOW_WIDTH // 2, 50))
-        screen.blit(title_text, title_rect)
-        
-        # Draw character boxes
-        for char_class in CHARACTER_CLASSES:
-            is_hovered = char_class["rect"].collidepoint(mouse_pos)
-            draw_character_box(char_class, is_hovered)
+        if selected_class is None:
+            # Clear the screen
+            ui.screen.fill(ui.black)  # Completely black background
+            
+            # Draw title
+            ui.draw_title()
+            
+            # Draw character boxes
+            for char_class in CHARACTER_CLASSES:
+                is_hovered = char_class.rect.collidepoint(mouse_pos)
+                draw_character_box(char_class, is_hovered)
+        else:
+            draw_battle_screen(selected_class, battle.enemy_hp)
         
         pygame.display.flip()
         clock.tick(60)
