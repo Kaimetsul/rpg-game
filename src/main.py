@@ -1,8 +1,8 @@
 # Jenkins Polling Test - This comment was added to test automatic builds
 import pygame
 import sys
-from src.game import CHARACTER_CLASSES, Battle
-from src.ui import UI
+from game import CHARACTER_CLASSES, Battle
+from ui import UI
 
 # Initialize Pygame
 pygame.init()
@@ -61,52 +61,99 @@ def draw_battle_screen(selected_class, enemy_hp):
     pygame.display.flip()
 
 def main():
-    clock = pygame.time.Clock()
+    pygame.init()
+    window_width = 800
+    window_height = 600
+    ui = UI(window_width, window_height)
+    
+    # Character selection setup
+    char_boxes = []
+    box_width = 150
+    box_height = 100
+    spacing = 50
+    total_width = (box_width * 4) + (spacing * 3)
+    start_x = (window_width - total_width) // 2
+    
+    for i, char_class in enumerate(CHARACTER_CLASSES):
+        x = start_x + (i * (box_width + spacing))
+        y = window_height // 2
+        char_class.rect = pygame.Rect(x, y, box_width, box_height)
+        char_boxes.append(char_class)
+    
     selected_class = None
     battle = None
+    game_state = "character_select"  # States: character_select, battle, maze, death
+    attack_rects = []
     
     while True:
-        mouse_pos = pygame.mouse.get_pos()
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if selected_class is None:
-                    # Check if any character class was clicked
-                    for char_class in CHARACTER_CLASSES:
-                        if char_class.rect.collidepoint(mouse_pos):
+            
+            if game_state == "character_select":
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for char_class in char_boxes:
+                        if char_class.rect.collidepoint(event.pos):
                             selected_class = char_class
-                            battle = Battle(char_class)
-                            print(f"Selected: {char_class.name}")
-                else:
-                    # Handle attack selection
-                    for i, attack in enumerate(selected_class.attacks):
-                        attack_rect = pygame.Rect(50, 150 + i * 50, 200, 30)
-                        if attack_rect.collidepoint(mouse_pos):
-                            attack_name, damage, enemy_hp = battle.attack(i)
-                            print(f"Used {attack_name} for {damage} damage. Enemy HP: {enemy_hp}")
+                            battle = Battle(selected_class)
+                            game_state = "battle"
+            
+            elif game_state == "battle":
+                if event.type == pygame.KEYDOWN:
+                    if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4]:
+                        attack_index = event.key - pygame.K_1
+                        if attack_index < len(selected_class.attacks):
+                            attack_name, damage, enemy_hp = battle.attack(attack_index)
                             if battle.is_enemy_defeated():
-                                print("Enemy defeated!")
-                                # TODO: Handle enemy defeat
+                                battle.enter_maze()
+                                game_state = "maze"
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    for i, rect in enumerate(attack_rects):
+                        if rect.collidepoint(event.pos):
+                            attack_name, damage, enemy_hp = battle.attack(i)
+                            if battle.is_enemy_defeated():
+                                battle.enter_maze()
+                                game_state = "maze"
+            
+            elif game_state == "maze":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        if battle.make_choice("left"):
+                            if len(battle.current_path) == len(battle.correct_path):
+                                game_state = "character_select"
+                                battle.reset()
+                    elif event.key == pygame.K_RIGHT:
+                        if battle.make_choice("right"):
+                            if len(battle.current_path) == len(battle.correct_path):
+                                game_state = "character_select"
+                                battle.reset()
+                    if battle.is_dead:
+                        game_state = "death"
+            
+            elif game_state == "death":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        game_state = "character_select"
+                        battle.reset()
         
-        if selected_class is None:
-            # Clear the screen
-            ui.screen.fill(ui.black)  # Completely black background
-            
-            # Draw title
+        # Drawing
+        if game_state == "character_select":
+            ui.screen.fill(ui.black)
             ui.draw_title()
-            
-            # Draw character boxes
-            for char_class in CHARACTER_CLASSES:
-                is_hovered = char_class.rect.collidepoint(mouse_pos)
-                ui.draw_character_box(char_class, is_hovered)
-        else:
-            ui.draw_battle_screen(selected_class, battle.enemy_hp)
+            for char_class in char_boxes:
+                ui.draw_character_box(char_class)
+        
+        elif game_state == "battle":
+            attack_rects = ui.draw_battle_screen(selected_class, battle.enemy_hp)
+        
+        elif game_state == "maze":
+            ui.draw_maze_level(battle.current_path)
+        
+        elif game_state == "death":
+            ui.draw_death_screen()
         
         pygame.display.flip()
-        clock.tick(60)
 
 if __name__ == "__main__":
     main()
