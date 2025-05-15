@@ -10,8 +10,8 @@ pipeline {
         
         stage('Test') {
             steps {
-                bat 'python -m pip install pytest'
-                bat 'python -m pytest tests/'
+                bat 'C:\\Python39\\python.exe -m pip install pytest'
+                bat 'C:\\Python39\\python.exe -m pytest tests/'
             }
         }
         
