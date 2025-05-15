@@ -4,19 +4,19 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t rpg-game .'
+                bat 'docker build -t rpg-game .'
             }
         }
         
         stage('Test') {
             steps {
-                sh 'pytest tests/'
+                bat 'pytest tests/'
             }
         }
         
         stage('Deploy') {
             steps {
-                sh 'docker run -d -p 8000:8000 rpg-game'
+                bat 'docker run -d -p 8000:8000 rpg-game'
             }
         }
     }
