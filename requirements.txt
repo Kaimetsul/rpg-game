@@ -1,5 +1,2 @@
-fastapi==0.68.1
-uvicorn==0.15.0
+pygame==2.1.2
 pytest==6.2.5
-pydantic==1.8.2
-sqlalchemy==1.4.23
