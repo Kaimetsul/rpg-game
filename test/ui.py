@@ -1,6 +1,6 @@
 import pygame
 import pytest
-from src.ui import button_positions, button_texts
+from src.RPG import button_positions, button_texts
 
 # Initialize pygame for testing
 pygame.init()
