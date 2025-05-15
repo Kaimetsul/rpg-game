@@ -16,7 +16,7 @@ HOVER_COLOR = (30, 30, 30)
 # Set up the display
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("RPG Character Selection")
-
+#BREAD
 # Character classes
 CHARACTER_CLASSES = [
     {
