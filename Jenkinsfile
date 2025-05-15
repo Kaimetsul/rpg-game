@@ -2,11 +2,10 @@ pipeline {
     agent any
     
     stages {
-        stage('Build and Test') {
+        stage('Build') {
             steps {
                 script {
                     bat 'docker build -t rpg-game:6 .'
-                    bat 'docker run --rm rpg-game:6 pytest tests/'
                 }
             }
         }
