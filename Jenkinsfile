@@ -10,14 +10,14 @@ pipeline {
         
         stage('Test') {
             steps {
-                bat 'docker run --rm rpg-game pytest tests/'
+                // Run tests with a virtual display for Pygame
+                bat 'docker run --rm -e DISPLAY=:99 rpg-game pytest tests/'
             }
         }
         
         stage('Deploy') {
             steps {
-                bat 'docker stop rpg-game-container || echo "No container to stop"'
-                bat 'docker run -d -p 8000:8000 --name rpg-game-container rpg-game'
+                echo 'Game is ready to run locally with: python src/main.py'
             }
         }
     }
