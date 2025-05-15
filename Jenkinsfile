@@ -2,22 +2,22 @@ pipeline {
     agent any
     
     stages {
-        stage('Build and Test') {
+        stage('Build') {
             steps {
-                script {
-                    bat 'docker build -t rpg-game:6 .'
-                    bat 'docker run --rm rpg-game:6 python -m pytest Game/test_ui.py'
-                }
+                bat 'docker build -t rpg-game .'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                bat 'docker run --rm rpg-game pytest tests/'
             }
         }
         
         stage('Deploy') {
             steps {
-                script {
-                    bat 'docker stop rpg-game-container'
-                    echo 'No existing container to clean up'
-                    bat 'docker run -d -p 8000:8000 --name rpg-game-container rpg-game:6'
-                }
+                bat 'docker stop rpg-game-container || echo "No container to stop"'
+                bat 'docker run -d -p 8000:8000 --name rpg-game-container rpg-game'
             }
         }
     }
