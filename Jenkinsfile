@@ -10,6 +10,7 @@ pipeline {
         
         stage('Test') {
             steps {
+                bat 'pip install pytest'
                 bat 'pytest tests/'
             }
         }
