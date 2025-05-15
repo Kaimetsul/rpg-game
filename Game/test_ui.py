@@ -1,5 +1,5 @@
 import pytest
-from .ui import Game
+from ui import Game
 
 def test_game_initialization():
     game = Game()

@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     bat 'docker build -t rpg-game:6 .'
-                    bat 'docker run --rm rpg-game:6 pytest Game/test_ui.py'
+                    bat 'docker run --rm rpg-game:6 python -m pytest Game/test_ui.py'
                 }
             }
         }
