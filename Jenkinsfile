@@ -15,26 +15,26 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+                bat 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
         
         stage('Test') {
             steps {
-                sh 'docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} pytest tests/ --cov=src --cov-report=term-missing'
+                bat 'docker run --rm -e DISPLAY=:99 ${DOCKER_IMAGE} pytest tests/ --cov=src --cov-report=term-missing'
             }
         }
         
         stage('Code Quality') {
             steps {
-                sh 'docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} flake8 src/ tests/'
-                sh 'docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} pylint src/ tests/'
+                bat 'docker run --rm ${DOCKER_IMAGE} flake8 src/'
+                bat 'docker run --rm ${DOCKER_IMAGE} pylint src/'
             }
         }
         
         stage('Deploy') {
             steps {
-                echo 'Game is ready to run locally with: python src/main.py'
+                echo 'Game is ready to run!'
             }
         }
     }
@@ -42,10 +42,10 @@ pipeline {
     post {
         always {
             cleanWs()
-            echo 'Pipeline completed successfully!'
+            echo 'Cleaning up workspace...'
         }
         success {
-            echo 'Build and tests passed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
             echo 'Build or tests failed!'
