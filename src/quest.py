@@ -43,6 +43,11 @@ class Quest:
         self.rewards_claimed = True
         return self.reward
 
+    def complete(self):
+        """Mark all objectives as completed (for test compatibility)"""
+        for obj in self.objectives:
+            self.objectives[obj] = True
+
 class QuestManager:
     """Manages all quests in the game"""
     def __init__(self):

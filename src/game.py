@@ -38,24 +38,17 @@ class Battle:
     def make_choice(self, direction):
         if not self.in_maze:
             return False
-        
         self.current_path.append(direction)
-        
         # Check if the current path matches the correct path up to this point
         if len(self.current_path) > len(self.correct_path):
             self.is_dead = True
             return False
-            
         for i in range(len(self.current_path)):
             if self.current_path[i] != self.correct_path[i]:
                 self.is_dead = True
                 return False
-        
-        # If we've completed the path correctly
-        if len(self.current_path) == len(self.correct_path):
-            return True
-            
-        return False
+        # Return True for every correct step
+        return True
 
     def reset(self):
         self.enemy_hp = random.randint(100, 1000)
