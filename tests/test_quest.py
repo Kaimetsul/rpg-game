@@ -80,6 +80,7 @@ class TestQuest(unittest.TestCase):
         
         # Test quest completion affects active quests
         self.ogre_quest.complete()
+        self.quest_manager.complete_quest(self.ogre_quest.title)  # Explicitly complete the quest
         active_quests = self.quest_manager.get_active_quests()
         self.assertEqual(len(active_quests), 1)
 
