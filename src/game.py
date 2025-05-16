@@ -9,6 +9,10 @@ class Battle:
     def __init__(self, character):
         self.character = character
         self.enemy_hp = random.randint(100, 1000)
+        self.correct_path = ["left", "right", "right", "left"]
+        self.current_path = []
+        self.in_maze = False
+        self.is_dead = False
 
     def attack(self, attack_index):
         attack = self.character.attacks[attack_index]
@@ -17,6 +21,38 @@ class Battle:
 
     def is_enemy_defeated(self):
         return self.enemy_hp <= 0
+
+    def enter_maze(self):
+        self.in_maze = True
+        self.current_path = []
+
+    def make_choice(self, direction):
+        if not self.in_maze:
+            return False
+        
+        self.current_path.append(direction)
+        
+        # Check if the current path matches the correct path up to this point
+        if len(self.current_path) > len(self.correct_path):
+            self.is_dead = True
+            return False
+            
+        for i in range(len(self.current_path)):
+            if self.current_path[i] != self.correct_path[i]:
+                self.is_dead = True
+                return False
+        
+        # If we've completed the path correctly
+        if len(self.current_path) == len(self.correct_path):
+            return True
+            
+        return False
+
+    def reset(self):
+        self.enemy_hp = random.randint(100, 1000)
+        self.current_path = []
+        self.in_maze = False
+        self.is_dead = False
 
 # Character classes
 CHARACTER_CLASSES = [
