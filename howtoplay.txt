@@ -1,0 +1,20 @@
+How to Run the Game
+1. Prerequisites:
+   - Python 3.8 or higher
+   - pip (Python package installer)
+
+2. Installation:
+   - Extract the zip file
+   - Open a terminal/command prompt
+   - Navigate to the project directory
+   - Run: pip install -r requirements.txt
+
+3. Running the Game:
+   - After installation, run: python src/main.py
+   - The game window will open and you can start playing
+   - Press 'E' to interact with objects
+   - Press 'I' to open inventory
+   - Press 'Q' to open quest log
+
+4. Troubleshooting:
+   - If you get a "pygame module not found" error, run: pip install pygame or other dependencies
