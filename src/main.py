@@ -1,8 +1,17 @@
 # Jenkins Polling Test - This comment was added to test automatic builds
 import pygame
 import sys
-from src.game import CHARACTER_CLASSES, Battle
-from src.ui import UI
+import random
+try:
+    from src.game import CHARACTER_CLASSES, Battle
+    from src.ui import UI
+    from src.inventory import Inventory, Item
+    from src.quest import Quest, QuestManager
+except ImportError:
+    from game import CHARACTER_CLASSES, Battle
+    from ui import UI
+    from inventory import Inventory, Item
+    from quest import Quest, QuestManager
 
 # Initialize Pygame
 pygame.init()
@@ -24,6 +33,19 @@ for char_class in CHARACTER_CLASSES:
 title_font = pygame.font.Font(None, 48)
 class_font = pygame.font.Font(None, 36)
 attack_font = pygame.font.Font(None, 24)
+
+# Initialize inventory and quest manager
+inventory = Inventory()
+quest_manager = QuestManager()
+
+# Add a sample quest
+sample_quest = Quest(
+    "Defeat the Dragon",
+    "Slay the dragon terrorizing the village",
+    ["Kill 5 enemies", "Collect dragon scales"],
+    reward={"gold": 100, "experience": 50}
+)
+quest_manager.add_quest(sample_quest)
 
 def draw_character_box(char_class, is_hovered=False):
     # Draw the octagon
@@ -60,6 +82,43 @@ def draw_battle_screen(selected_class, enemy_hp):
     
     pygame.display.flip()
 
+def draw_inventory():
+    ui.screen.fill(BLACK)
+    title = title_font.render("Inventory", True, WHITE)
+    ui.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
+    y = 150
+    for item in inventory.items:
+        item_text = class_font.render(f"{item.name} ({item.type})", True, WHITE)
+        ui.screen.blit(item_text, (WINDOW_WIDTH // 2 - item_text.get_width() // 2, y))
+        y += 50
+    pygame.display.flip()
+
+def draw_quests():
+    ui.screen.fill(BLACK)
+    title = title_font.render("Quests", True, WHITE)
+    ui.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
+    y = 150
+    for quest in quest_manager.get_active_quests():
+        quest_text = class_font.render(f"{quest.title}: {quest.description}", True, WHITE)
+        ui.screen.blit(quest_text, (WINDOW_WIDTH // 2 - quest_text.get_width() // 2, y))
+        y += 50
+    pygame.display.flip()
+
+def draw_how_to_play():
+    ui.screen.fill(BLACK)
+    title = title_font.render("How to Play", True, WHITE)
+    ui.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
+    instructions = [
+        "Press 'I' to open inventory",
+        "Press 'Q' to view quests"
+    ]
+    y = 150
+    for instruction in instructions:
+        instruction_text = class_font.render(instruction, True, WHITE)
+        ui.screen.blit(instruction_text, (WINDOW_WIDTH // 2 - instruction_text.get_width() // 2, y))
+        y += 50
+    pygame.display.flip()
+
 def main():
     pygame.init()
     window_width = 800
@@ -82,7 +141,7 @@ def main():
     
     selected_class = None
     battle = None
-    game_state = "character_select"  # States: character_select, battle, maze, death
+    game_state = "character_select"  # States: character_select, battle, maze, death, inventory, quests, how_to_play
     attack_rects = []
     
     while True:
@@ -90,6 +149,23 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_i:
+                    if game_state == "inventory":
+                        game_state = "character_select"
+                    else:
+                        game_state = "inventory"
+                elif event.key == pygame.K_q:
+                    if game_state == "quests":
+                        game_state = "character_select"
+                    else:
+                        game_state = "quests"
+                elif event.key == pygame.K_h:
+                    if game_state == "how_to_play":
+                        game_state = "character_select"
+                    else:
+                        game_state = "how_to_play"
             
             if game_state == "character_select":
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -108,6 +184,11 @@ def main():
                             if battle.is_enemy_defeated():
                                 battle.enter_maze()
                                 game_state = "maze"
+                                # Give a health potion after battle
+                                inventory.add_item(Item("Health Potion", "Consumable", 10))
+                                # 10% chance to drop a weapon
+                                if random.random() < 0.1:
+                                    inventory.add_item(Item("Weapon", "Weapon", 10))
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     for i, rect in enumerate(attack_rects):
                         if rect.collidepoint(event.pos):
@@ -115,6 +196,11 @@ def main():
                             if battle.is_enemy_defeated():
                                 battle.enter_maze()
                                 game_state = "maze"
+                                # Give a health potion after battle
+                                inventory.add_item(Item("Health Potion", "Consumable", 10))
+                                # 10% chance to drop a weapon
+                                if random.random() < 0.1:
+                                    inventory.add_item(Item("Weapon", "Weapon", 10))
             
             elif game_state == "maze":
                 if event.type == pygame.KEYDOWN:
@@ -152,6 +238,15 @@ def main():
         
         elif game_state == "death":
             ui.draw_death_screen()
+        
+        elif game_state == "inventory":
+            draw_inventory()
+        
+        elif game_state == "quests":
+            draw_quests()
+        
+        elif game_state == "how_to_play":
+            draw_how_to_play()
         
         pygame.display.flip()
 
