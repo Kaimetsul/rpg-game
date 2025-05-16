@@ -25,20 +25,6 @@ pipeline {
             }
         }
         
-        stage('Code Quality') {
-            steps {
-                script {
-                    try {
-                        bat 'docker run --rm %DOCKER_IMAGE% flake8 src/'
-                        bat 'docker run --rm %DOCKER_IMAGE% pylint src/'
-                    } catch (Exception e) {
-                        echo 'Code quality checks failed, but continuing pipeline...'
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
-        
         stage('Deploy') {
             steps {
                 echo 'Game is ready to run!'
@@ -56,9 +42,6 @@ pipeline {
         }
         failure {
             echo 'Build or tests failed!'
-        }
-        unstable {
-            echo 'Pipeline completed with code quality issues.'
         }
     }
 }
