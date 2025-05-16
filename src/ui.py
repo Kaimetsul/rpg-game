@@ -1,3 +1,15 @@
+"""
+Author: Deny Mudashiru
+File: ui.py
+Purpose: User interface components and screen management
+Dependencies:
+    - pygame==2.1.2: Required for rendering UI elements
+    - pytest==6.2.5: Required for testing
+    - game: For game state management
+    - inventory: For inventory display
+    - quest: For quest display
+"""
+
 import pygame
 
 class UI:

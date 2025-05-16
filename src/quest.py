@@ -1,3 +1,11 @@
+"""
+Author: Deny Mudashiru
+File: quest.py
+Purpose: Quest management system for tracking game objectives and rewards
+Dependencies:
+    - None: This is a standalone module
+"""
+
 class Quest:
     """Represents a quest in the game"""
     def __init__(self, title, description, objectives, reward):

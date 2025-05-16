@@ -1,0 +1,30 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment files
+.env
+venv/
+env/
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Log files
+*.log
+
+# System files
+.DS_Store
+Thumbs.db 

@@ -1,3 +1,12 @@
+"""
+Author: Deny Mudashiru
+File: game.py
+Purpose: Core game mechanics including character classes and battle system
+Dependencies:
+    - pygame==2.1.2: Required for game mechanics and timing
+    - pytest==6.2.5: Required for testing
+"""
+
 import random
 
 class Character:

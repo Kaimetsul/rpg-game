@@ -1,3 +1,11 @@
+"""
+Author: Deny Mudashiru
+File: inventory.py
+Purpose: Inventory management system for storing and managing game items
+Dependencies:
+    - pytest==6.2.5: Required for testing
+"""
+
 class Item:
     """Represents an item in the game inventory"""
     def __init__(self, name, type, value):
