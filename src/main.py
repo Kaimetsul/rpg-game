@@ -1,8 +1,8 @@
 # Jenkins Polling Test - This comment was added to test automatic builds
 import pygame
 import sys
-from game import CHARACTER_CLASSES, Battle
-from ui import UI
+from src.game import CHARACTER_CLASSES, Battle
+from src.ui import UI
 
 # Initialize Pygame
 pygame.init()
