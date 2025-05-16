@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'rpg-game'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        // Quality thresholds
+
         QUALITY_THRESHOLD = '80'
         COVERAGE_THRESHOLD = '30'
     }
