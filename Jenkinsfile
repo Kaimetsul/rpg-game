@@ -15,20 +15,20 @@ pipeline {
         
         stage('Build') {
             steps {
-                bat 'docker build -t ${DOCKER_IMAGE} .'
+                bat 'docker build -t %DOCKER_IMAGE% .'
             }
         }
         
         stage('Test') {
             steps {
-                bat 'docker run --rm -e DISPLAY=:99 ${DOCKER_IMAGE} pytest tests/ --cov=src --cov-report=term-missing'
+                bat 'docker run --rm -e DISPLAY=:99 %DOCKER_IMAGE% pytest tests/ --cov=src --cov-report=term-missing'
             }
         }
         
         stage('Code Quality') {
             steps {
-                bat 'docker run --rm ${DOCKER_IMAGE} flake8 src/'
-                bat 'docker run --rm ${DOCKER_IMAGE} pylint src/'
+                bat 'docker run --rm %DOCKER_IMAGE% flake8 src/'
+                bat 'docker run --rm %DOCKER_IMAGE% pylint src/'
             }
         }
         
